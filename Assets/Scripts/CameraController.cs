@@ -33,8 +33,6 @@ namespace CS.InputSystem
 
             float horizontalValue = _horizontalSensitivity * invertHorizontalValue  * Input.GetAxisRaw(HORIZONTAL_AXIS_MOUSE);
             float verticalValue = _verticalSensitivity * invertVerticalValue  * Input.GetAxisRaw(VERTICAL_AXIS_MOUSE);
-            
-            Debug.LogError($"horizontalValue: {horizontalValue} verticalValue: {verticalValue}");
 
             // Create rotations quaternions for global Up and local Right with modified input values
             Quaternion horizontalRotation = Quaternion.AngleAxis(horizontalValue, Vector3.up);
