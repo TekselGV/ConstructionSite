@@ -14,31 +14,35 @@ namespace CS.InputSystem
         [SerializeField] private bool _invertHorizontal;
         [Tooltip("Sensitivity of horizontal mouse movement for the camera")]
         [Range(0.1f, 2f)]
-        [SerializeField] private float _horizontalSensitivity = 1f;
+        [SerializeField] private float _horizontalSensitivity = 150f;
 
-        [SerializeField] private bool _invertVertical;
+        [SerializeField] private bool _invertVertical = true;
         [Tooltip("Sensitivity of vertical mouse movement for the camera")]
         [Range(0.1f, 2f)]
-        [SerializeField] private float _verticalSensitivity = 1f;
+        [SerializeField] private float _verticalSensitivity = 150f;
 
-        void Update()
+        #region PUBLIC_METHODS
+        /// <summary>
+        /// Apply rotation from mouse inputs to this transform to simulate 3rd person camera
+        /// </summary>
+        public void RotateCamera()
         {
+            // Update invert coefs in update in case we change value of serialized bool in runtime
             float invertHorizontalValue = _invertHorizontal ? -1 : 1;
             float invertVerticalValue = _invertVertical ? -1 : 1;
-            
-            float horizontalValue = _horizontalSensitivity * invertHorizontalValue * Input.GetAxisRaw(HORIZONTAL_AXIS_MOUSE);
-            
-            float verticalValue = _verticalSensitivity * invertVerticalValue * Input.GetAxisRaw(VERTICAL_AXIS_MOUSE);
 
+            float horizontalValue = _horizontalSensitivity * invertHorizontalValue  * Input.GetAxisRaw(HORIZONTAL_AXIS_MOUSE);
+            float verticalValue = _verticalSensitivity * invertVerticalValue  * Input.GetAxisRaw(VERTICAL_AXIS_MOUSE);
+            
+            Debug.LogError($"horizontalValue: {horizontalValue} verticalValue: {verticalValue}");
+
+            // Create rotations quaternions for global Up and local Right with modified input values
             Quaternion horizontalRotation = Quaternion.AngleAxis(horizontalValue, Vector3.up);
             Quaternion verticalRotation = Quaternion.AngleAxis(verticalValue, transform.right);
-            
-            Quaternion rotation = Quaternion.Euler(verticalValue, horizontalValue, 0);
 
-            transform.Rotate(verticalValue, 0f, 0f);
-
-            //transform.rotation = transform.rotation * horizontalRotation * verticalRotation;
-
+            // Apply mouse rotations around global Up and Local right to current transform. Order is important
+            transform.rotation = horizontalRotation * verticalRotation * transform.rotation;
         }
+        #endregion
     }
 }
