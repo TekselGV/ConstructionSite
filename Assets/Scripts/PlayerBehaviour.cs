@@ -23,8 +23,8 @@ namespace CS.PlayerBehaviour
         
         [Header("Options")]
         [SerializeField] private bool _lockCursor = true;
-        [Range(1f, 60f)]
-        [SerializeField] private float _playerRotationSpeed = 10f;
+        [Range(1f, 20f)]
+        [SerializeField] private float _playerRotationSpeed = 7f;
 
         #region PRIVATE_METHODS
         void Start()
