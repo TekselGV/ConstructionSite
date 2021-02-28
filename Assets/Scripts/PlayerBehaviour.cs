@@ -9,6 +9,7 @@ namespace CS.PlayerBehaviour
     {
         private const string HORIZONTAL_AXIS = "Horizontal";
         private const string VERTICAL_AXIS = "Vertical";
+        private const string VELOCITY_ANIM_PARAM = "Velocity";
 
         private const float FINAL_DIRECTION_THRESHOLD = 0.1f;
         /// <summary>
@@ -20,6 +21,7 @@ namespace CS.PlayerBehaviour
         [SerializeField] private CameraController _cameraController;
         [SerializeField] private PlayerMovement _playerMovement;
         [SerializeField] private Transform _visualParent;
+        [SerializeField] private Animator _characterAnimator;
         
         [Header("Options")]
         [SerializeField] private bool _lockCursor = true;
@@ -38,6 +40,7 @@ namespace CS.PlayerBehaviour
             SyncCameraControllerPosition();
             TrackMovementInputs();
             RotateVisualParent();
+            UpdateAnimatorVelocity();
         }
 
         private void UpdateCursorLockMode()
@@ -91,6 +94,14 @@ namespace CS.PlayerBehaviour
                 Quaternion targetOrientation = Quaternion.LookRotation(projectedVelocity, _visualParent.up);
                 _visualParent.rotation = Quaternion.Slerp(_visualParent.rotation, targetOrientation, _playerRotationSpeed * Time.deltaTime);
             }
+        }
+
+        /// <summary>
+        /// Updated character controller animator velocity param with actual velocity from rigidbody
+        /// </summary>
+        private void UpdateAnimatorVelocity()
+        {
+            _characterAnimator.SetFloat(VELOCITY_ANIM_PARAM, _playerMovement.VelocityRigidbody.magnitude);
         }
         #endregion
     }
