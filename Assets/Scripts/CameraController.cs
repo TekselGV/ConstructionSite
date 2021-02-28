@@ -18,8 +18,14 @@ namespace CS.InputSystem
 
         [SerializeField] private bool _invertVertical = true;
         [Tooltip("Sensitivity of vertical mouse movement for the camera")]
+        
         [Range(0.1f, 2f)]
         [SerializeField] private float _verticalSensitivity = 150f;
+        
+        [Tooltip("Defines min and max limit for vertical camera angle in degrees calculated from zenith/GlobalUp," +
+            " 10 deg: camera looking from almost from horizon; 90 deg: camera looking on character from zenith.")]
+        [SerializeField] private Vector2 _verticalMinMaxAngle = new Vector2(10f, 70f);
+
 
         #region PUBLIC_METHODS
         /// <summary>
@@ -32,7 +38,22 @@ namespace CS.InputSystem
             float invertVerticalValue = _invertVertical ? -1 : 1;
 
             float horizontalValue = _horizontalSensitivity * invertHorizontalValue  * Input.GetAxisRaw(HORIZONTAL_AXIS_MOUSE);
-            float verticalValue = _verticalSensitivity * invertVerticalValue  * Input.GetAxisRaw(VERTICAL_AXIS_MOUSE);
+
+            float verticalAxisValue = Input.GetAxisRaw(VERTICAL_AXIS_MOUSE);
+            float upZenithAngle = Vector3.SignedAngle(Vector3.up, transform.up, transform.right);
+
+            // If we are passing MinMax limit of the vertical axis, clamp input values to one side
+            if (upZenithAngle < _verticalMinMaxAngle.x)
+            {
+                verticalAxisValue = Mathf.Clamp(verticalAxisValue, -1, 0);
+
+            }
+            if (upZenithAngle > _verticalMinMaxAngle.y)
+            {
+                verticalAxisValue = Mathf.Clamp01(verticalAxisValue);
+            }
+            
+            float verticalValue = _verticalSensitivity * invertVerticalValue  * verticalAxisValue;
 
             // Create rotations quaternions for global Up and local Right with modified input values
             Quaternion horizontalRotation = Quaternion.AngleAxis(horizontalValue, Vector3.up);
