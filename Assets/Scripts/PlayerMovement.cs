@@ -5,6 +5,7 @@ using UnityEngine;
 namespace CS.PlayerBehaviour 
 { 
     [RequireComponent(typeof(Rigidbody))]
+    [RequireComponent(typeof(Collider))]
     public class PlayerMovement : MonoBehaviour
     {
         private enum OrientationApproach
@@ -15,6 +16,7 @@ namespace CS.PlayerBehaviour
         
         [Header("Main References")]
         [SerializeField] private Rigidbody _rigidbody;
+        [SerializeField] private Collider _collider;
 
         [Header("Options")]
 
@@ -114,10 +116,34 @@ namespace CS.PlayerBehaviour
                 _rigidbody.AddForceAtPosition(InputForceVector.normalized * _inputForcePower, transform.position, ForceMode.Force);
             }
         }
+
         #endregion
 
         #region PUBLIC_METHODS
+        /// <summary>
+        /// Called to disabled collider that is used during movement simulation while player is alive
+        /// </summary>
+        public void SetPlayerDead(bool isDead)
+        {
+            if (isDead)
+            {
+                _collider.enabled = false;
+                _rigidbody.isKinematic = true;
+            }
+            else
+            {
+                _collider.enabled = true;
+                _rigidbody.isKinematic = false;
+            }
+        }
 
+        /// <summary>
+        /// Reset's player's rigidbody velocity to zero
+        /// </summary>
+        public void ResetPlayerVelocity()
+        {
+            _rigidbody.velocity = Vector3.zero;
+        }
         #endregion
     }
 }

@@ -21,17 +21,23 @@ namespace CS.PlayerBehaviour
         [SerializeField] private CameraController _cameraController;
         [SerializeField] private PlayerMovement _playerMovement;
         [SerializeField] private Transform _visualParent;
-        [SerializeField] private Animator _characterAnimator;
+        [SerializeField] private GameObject _characterPrefab;
         
         [Header("Options")]
         [SerializeField] private bool _lockCursor = true;
         [Range(1f, 20f)]
         [SerializeField] private float _playerRotationSpeed = 7f;
 
+        private Animator _currentCharacterAnimator;
+        private GameObject _currentCharacter;
+
+        private bool _isAlive = true;
+        
         #region PRIVATE_METHODS
         void Start()
         {
             UpdateCursorLockMode();
+            SpawnCharacter();
         }
 
         private void Update()
@@ -39,6 +45,8 @@ namespace CS.PlayerBehaviour
             _cameraController.RotateCamera();
             SyncCameraControllerPosition();
             TrackMovementInputs();
+            TrackRespawnInput();
+            TrackRagdollInput();
             RotateVisualParent();
             UpdateAnimatorVelocity();
         }
@@ -47,6 +55,33 @@ namespace CS.PlayerBehaviour
         {
             CursorLockMode lockMode = _lockCursor ? CursorLockMode.Locked : CursorLockMode.None;
             Cursor.lockState = lockMode;
+        }
+
+        /// <summary>
+        /// Instantiate character prefab inside visual Parent. Called at the beginning and manually from input
+        /// </summary>
+        private void SpawnCharacter()
+        {
+            if (_currentCharacter)
+            {
+                Destroy(_currentCharacter.gameObject);
+            }
+
+            _currentCharacter = Instantiate(_characterPrefab, _visualParent);
+
+
+            if (!_currentCharacter.TryGetComponent(out _currentCharacterAnimator))
+            {
+                Debug.LogError("Character prefab doesn't have animator component assigned");
+            }
+
+
+            // We reset physical player back to it's original position here when respawning
+            _playerMovement.transform.localPosition = Vector3.zero;
+            _playerMovement.SetPlayerDead(false);
+            _playerMovement.ResetPlayerVelocity();
+
+            _isAlive = true;
         }
 
         /// <summary>
@@ -59,6 +94,11 @@ namespace CS.PlayerBehaviour
 
         private void TrackMovementInputs()
         {
+            if (!_isAlive)
+            {
+                return;
+            }
+
             // Since input values are changing from -1 to 1, we use this magic operation to remap from 0 to 1
             float remappedHorizontalAxis = Input.GetAxisRaw(HORIZONTAL_AXIS) * 0.5f + 0.5f;
             float remappedVerticalAxis = Input.GetAxisRaw(VERTICAL_AXIS) * 0.5f + 0.5f;
@@ -83,12 +123,29 @@ namespace CS.PlayerBehaviour
             }
         }
 
+        private void TrackRespawnInput()
+        {
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                _isAlive = false;
+                SpawnCharacter();
+            }
+        }
+
+        private void TrackRagdollInput()
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                RagdollCharacter();
+            }
+        }
+
         /// <summary>
         /// To rotate visual character around local vertical axis along with movement direction
         /// </summary>
         private void RotateVisualParent()
         {
-            if (_playerMovement.VelocityRigidbody.magnitude > MIN_VELOCITY_TO_ROTATE)
+            if (_playerMovement.VelocityRigidbody.magnitude > MIN_VELOCITY_TO_ROTATE && _isAlive)
             {
                 Vector3 projectedVelocity = Vector3.ProjectOnPlane(_playerMovement.VelocityRigidbody, _playerMovement.transform.up);
                 Quaternion targetOrientation = Quaternion.LookRotation(projectedVelocity, _visualParent.up);
@@ -101,7 +158,17 @@ namespace CS.PlayerBehaviour
         /// </summary>
         private void UpdateAnimatorVelocity()
         {
-            _characterAnimator.SetFloat(VELOCITY_ANIM_PARAM, _playerMovement.VelocityRigidbody.magnitude);
+            if (_isAlive)
+            {
+                _currentCharacterAnimator.SetFloat(VELOCITY_ANIM_PARAM, _playerMovement.VelocityRigidbody.magnitude);
+            }
+        }
+
+        private void RagdollCharacter()
+        {
+            _isAlive = false;
+            _currentCharacterAnimator.enabled = false;
+            _playerMovement.SetPlayerDead(true);
         }
         #endregion
     }
