@@ -9,7 +9,6 @@ namespace CS.PlayerBehaviour
     {
         private const string HORIZONTAL_AXIS = "Horizontal";
         private const string VERTICAL_AXIS = "Vertical";
-        private const string VELOCITY_ANIM_PARAM = "Velocity";
 
         private const float FINAL_DIRECTION_THRESHOLD = 0.1f;
         /// <summary>
@@ -28,8 +27,7 @@ namespace CS.PlayerBehaviour
         [Range(1f, 20f)]
         [SerializeField] private float _playerRotationSpeed = 7f;
 
-        private Animator _currentCharacterAnimator;
-        private GameObject _currentCharacter;
+        private VisualCharacterController _currentCharacter;
 
         private bool _isAlive = true;
         
@@ -67,14 +65,8 @@ namespace CS.PlayerBehaviour
                 Destroy(_currentCharacter.gameObject);
             }
 
-            _currentCharacter = Instantiate(_characterPrefab, _visualParent);
-
-
-            if (!_currentCharacter.TryGetComponent(out _currentCharacterAnimator))
-            {
-                Debug.LogError("Character prefab doesn't have animator component assigned");
-            }
-
+            var character = Instantiate(_characterPrefab, _visualParent);
+            _currentCharacter = character.GetComponent<VisualCharacterController>();
 
             // We reset physical player back to it's original position here when respawning
             _playerMovement.transform.localPosition = Vector3.zero;
@@ -160,14 +152,14 @@ namespace CS.PlayerBehaviour
         {
             if (_isAlive)
             {
-                _currentCharacterAnimator.SetFloat(VELOCITY_ANIM_PARAM, _playerMovement.VelocityRigidbody.magnitude);
+                _currentCharacter.UpdateAnimatorVelocity(_playerMovement.VelocityRigidbody.magnitude);
             }
         }
 
         private void RagdollCharacter()
         {
             _isAlive = false;
-            _currentCharacterAnimator.enabled = false;
+            _currentCharacter.SetRagdollOn(_playerMovement.VelocityRigidbody);
             _playerMovement.SetPlayerDead(true);
         }
         #endregion
