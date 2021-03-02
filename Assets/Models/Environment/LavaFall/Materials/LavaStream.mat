@@ -22,7 +22,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: LavaStream
   m_Shader: {fileID: 4800000, guid: 8890e4a6475f09a4f9a81e5baa0f3680, type: 3}
-  m_ShaderKeywords: 
+  m_ShaderKeywords: _STREAM_DISTORSION_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -98,7 +98,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _AlphaClip: 0
-    - _BaseOffsetSpeed: 1
+    - _BaseOffsetSpeed: 2
     - _BaseTiling: 1
     - _Blend: 0
     - _BumpScale: 1
@@ -109,8 +109,8 @@ Material:
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _EdgeMapTiling: 1.513
-    - _EdgeOffsetSpeed: 0.5
+    - _EdgeMapTiling: 2
+    - _EdgeOffsetSpeed: 1.5
     - _EnvironmentReflections: 1
     - _GlossMapScale: 1
     - _Glossiness: 0
@@ -122,11 +122,12 @@ Material:
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _Slider1: 0
-    - _Slider2: 0.569
+    - _Slider2: 1
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _StreamDistorsion: 1
     - _Surface: 0
     - _UVSec: 0
     - _WorkflowMode: 1
