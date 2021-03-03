@@ -11,21 +11,43 @@ namespace CS.InputSystem
 
         [Header("Options")]
 
+        [Tooltip("Use True if you want this script to drive itself")]
+        [SerializeField] private bool _selfSufficient = false;
+        
         [SerializeField] private bool _invertHorizontal;
         [Tooltip("Sensitivity of horizontal mouse movement for the camera")]
         [Range(0.1f, 2f)]
-        [SerializeField] private float _horizontalSensitivity = 150f;
+        [SerializeField] private float _horizontalSensitivity = 1f;
 
         [SerializeField] private bool _invertVertical = true;
         [Tooltip("Sensitivity of vertical mouse movement for the camera")]
         
         [Range(0.1f, 2f)]
-        [SerializeField] private float _verticalSensitivity = 150f;
+        [SerializeField] private float _verticalSensitivity = 1f;
         
         [Tooltip("Defines min and max limit for vertical camera angle in degrees calculated from zenith/GlobalUp," +
             " 10 deg: camera looking from almost from horizon; 90 deg: camera looking on character from zenith.")]
         [SerializeField] private Vector2 _verticalMinMaxAngle = new Vector2(10f, 70f);
 
+        #region PRIVATE_METHODS
+
+        private void Start()
+        {
+            if (_selfSufficient)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+
+            }
+        }
+
+        private void Update()
+        {
+            if (_selfSufficient)
+            {
+                RotateCamera();
+            }
+        }
+        #endregion
 
         #region PUBLIC_METHODS
         /// <summary>
